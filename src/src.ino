@@ -61,21 +61,45 @@ void loop() {
 
 				// Target weight reached
 				if (weight >= weightInputToInt) {
-					// Turn off machine
-					digitalWrite(RELAYPIN0, HIGH);
+					StopExtract("SOFTRESET");
+				}
 
-					Serial.print("Resetting...");
+				// Non-blocking
+				char raw[10];
+				int index = 0;
+				while (Serial.available()) {
+					raw[index++] = Serial.read();
+				}
 
-					// Wait for loadcell to go back to 0
-					while (loadcell.getData() >= 0) {
-						loadcell.update();
-					}
-
-					Serial.println("OK");
-
-					extracting = false;
+				if (strstr(raw, "relay off") != nullptr) {
+					StopExtract("HARDRESET");
+				}
+				else if (strstr(raw, "stop detach") != nullptr) {
+					StopExtract("SOFTRESET");
 				}
 			}
 		}
 	}
+}
+
+void StopExtract(char *mode) {
+	if (mode == "HARDRESET") {
+		// Turn off machine
+		digitalWrite(RELAYPIN0, HIGH);
+		digitalWrite(RELAYPIN1, HIGH);
+	}
+	else {
+		digitalWrite(RELAYPIN0, HIGH);
+	}
+
+	Serial.print("Resetting...");
+
+	// Wait for loadcell to go back to 0
+	while (loadcell.getData() >= 0) {
+		loadcell.update();
+	}
+
+	Serial.println("OK");
+
+	extracting = false;
 }
