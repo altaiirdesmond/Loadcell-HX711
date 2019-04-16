@@ -3,4 +3,4 @@
 Measures weight using loadcell and HX711 module with arduino uno
 
 # Diagram/Schem
-![alt text] (https://github.com/altaiirdesmond/Weight-Measuring/blob/master/schem/Schematic.png)
+![alt text](https://github.com/altaiirdesmond/Weight-Measuring/blob/master/schem/Schematic.png)
