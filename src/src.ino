@@ -9,9 +9,10 @@ const int RELAYPIN1 = 7;
 const int REEDSWITCHPIN = 8;
 
 boolean extracting = false;
+boolean caseOpen = false;
 
-void setup() { 
-	Serial.begin(9600); 
+void setup() {
+	Serial.begin(9600);
 
 	loadcell.begin();
 	loadcell.start(2000);
@@ -23,10 +24,31 @@ void setup() {
 
 	digitalWrite(RELAYPIN0, HIGH);
 	digitalWrite(RELAYPIN1, HIGH);
+
+	if (digitalRead(REEDSWITCHPIN) == HIGH) {
+		digitalWrite(RELAYPIN0, HIGH);
+		digitalWrite(RELAYPIN1, HIGH);
+
+		caseOpen = true;
+	}
+	else {
+		caseOpen = false;
+	}
 }
 
 void loop() {
-	if (Serial.available()) {
+	// Case open
+	if (digitalRead(REEDSWITCHPIN) == HIGH) {
+		digitalWrite(RELAYPIN0, HIGH);
+		digitalWrite(RELAYPIN1, HIGH);
+
+		caseOpen = true;
+	}
+	else {
+		caseOpen = false;
+	}
+
+	if (Serial.available() && !caseOpen) {
 		char data[20];
 		strcpy(data, Serial.readString().c_str());
 
@@ -60,8 +82,9 @@ void loop() {
 				Serial.println(weight);
 
 				// Target weight reached
-				if (weight >= weightInputToInt) {
-					StopExtract("SOFTRESET");
+				if (weight >= weightInputToInt) { 
+          // Turn off ALL relays
+					StopExtract("HARDRESET");
 				}
 
 				// Non-blocking
@@ -76,6 +99,10 @@ void loop() {
 				}
 				else if (strstr(raw, "stop detach") != nullptr) {
 					StopExtract("SOFTRESET");
+				}
+
+				if (digitalRead(REEDSWITCHPIN) == HIGH) {
+					StopExtract("HARDRESET");
 				}
 			}
 		}
