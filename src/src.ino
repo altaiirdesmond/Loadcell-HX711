@@ -56,7 +56,9 @@ void loop() {
 		if (strstr(data, "extract_") != nullptr) {
 			extracting = true;
 
+      // Turn machine on
 			digitalWrite(RELAYPIN0, LOW);
+      digitalWrite(RELAYPIN1, LOW);
 
 			// Split
 			char *pch = strtok(data, "_");
